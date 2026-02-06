@@ -1,35 +1,39 @@
 import "~/styles/globals.css";
 
+import { type Metadata } from "next";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { Providers } from "~/components/providers";
-
 import { Toaster } from "~/components/ui/sonner";
-
-import { Separator } from "~/components/ui/separator";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-} from "~/components/ui/breadcrumb";
-
-export const metadata: Metadata = {
-  title: "AI Image Generator Studio",
-  description: "AI Image Generator - Turn text prompts into images",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
-
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
-import type { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
+import { AppSidebar } from "~/components/sidebar/app-sidebar";
+import { Separator } from "~/components/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+} from "~/components/ui/breadcrumb";
 import BreadcrumbPageClient from "~/components/sidebar/breadcrumb-page-client";
-import AppSidebar from '~/components/sidebar/app-sidebar';
+import { auth } from "~/lib/auth";
 
-export default function RootLayout({
+export const metadata: Metadata = {
+  title: "AI Image Generator",
+  description: "AI Image Generator - Turn text prompts into images",
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    redirect("/auth/sign-up");
+  }
+
   return (
     <Providers>
       <SidebarProvider>
